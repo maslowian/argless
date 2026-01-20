@@ -31,6 +31,7 @@ endif()
 
 add_library(${PROJECT_NAME} INTERFACE)
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_20) 
 
 include(GNUInstallDirs)
 
@@ -44,7 +45,7 @@ if (ARGLESS_SINGLE_HEADER)
     set(ARGLESS_INCLUDE_BUILD_DIR "${PROJECT_SOURCE_DIR}/single_include/")
 else()
     set(ARGLESS_INCLUDE_BUILD_DIR "${PROJECT_SOURCE_DIR}/include/")
-    target_link_libraries(${PROJECT_NAME} INTERFACE tetter)
+    target_link_libraries(${PROJECT_NAME} INTERFACE tetter::tetter)
 endif()
 
 target_include_directories(${PROJECT_NAME} INTERFACE
