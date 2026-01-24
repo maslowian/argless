@@ -497,7 +497,7 @@ public:
 	inline ~result() = default;
 
 public:
-	inline const char_t* path() const { return m_path; };
+	inline const char_t* const& path() const { return m_path; };
 
 public:
 	inline auto& get() & { return _ARGLESS_CORE result_get<typename app::noname_arg_type>::call(m_noname_value); }
@@ -526,7 +526,7 @@ private:
 		requires _ARGLESS_CORE no_name_or_alias_collision<args_...>
 	friend struct _ARGLESS app;
 
-	const char_t* m_path;
+	const char_t* m_path = nullptr;
 	result_error<char_t> m_error;
 
 	_ARGLESS_CORE result_cast_noname<typename app::noname_arg_type> m_noname_value;
@@ -567,13 +567,10 @@ public:
 		result<app, char_t> result;
 		result.m_error.m_type = result_error_type::unknown;
 
-		if (args.m_index < argc)
-		{
-			result.m_path = args.m_args[args.m_index].m_value;
-			args.consume();
-		}
+		if (auto path = args.peak())
+			result.m_path = (args.consume(), *path);
 
-		while (args.m_index < argc)
+		while (args.m_index < args.m_limit)
 		{
 			auto& arg_index = args.m_index;
 			auto& arg = args.m_args[arg_index];
