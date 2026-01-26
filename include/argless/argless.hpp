@@ -407,7 +407,7 @@ _ARGLESS_CORE_END
 
 _ARGLESS_BEGIN
 
-static constexpr inline auto nodesc = _ARGLESS_CORE str("");
+constexpr inline auto nodesc = _ARGLESS_CORE str("");
 
 template <_ARGLESS_CORE parsable type_, _ARGLESS_CORE str name_, _ARGLESS_CORE str desc_ = nodesc, _ARGLESS_CORE str... aliases_>
 struct arg
