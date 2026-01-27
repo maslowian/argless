@@ -25,6 +25,10 @@ export namespace argless
 	using ::argless::validate;
 	using ::argless::option;
 
+	using ::argless::enum_value;
+	using ::argless::enum_values;
+	using ::argless::enum_refl;
+
 	using ::argless::get_name;
 
 	using ::argless::help_error;
