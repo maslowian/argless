@@ -187,14 +187,14 @@ inline consteval auto str_name()
 template <auto str>
 inline consteval auto wrapped_name()
 {
-	using char_t = typename decltype(str)::chart;
-	if constexpr (str.size == 1 || (str.m_buffer[0] != static_cast<char_t>('<') || str.m_buffer[str.size-2] != static_cast<char_t>('>')))
+	using char_t = typename decltype(str)::char_t;
+	if constexpr (str.size() == 1 || (str.m_buffer[0] != static_cast<char_t>('<') || str.m_buffer[str.size()-2] != static_cast<char_t>('>')))
 	{
-		_ARGLESS_CORE str<char_t, str.size + 2> result;
+		_ARGLESS_CORE str<char_t, str.size() + 2> result;
 		result.m_buffer[0] = static_cast<char_t>('<');
-		for (std::size_t i = 0; i < str.size - 1; ++i) result.m_buffer[1+i] = str.m_buffer[i];
-		result.m_buffer[result.size - 2] = static_cast<char_t>('>');
-		result.m_buffer[result.size - 1] = static_cast<char_t>('\0');
+		for (std::size_t i = 0; i < str.size() - 1; ++i) result.m_buffer[1+i] = str.m_buffer[i];
+		result.m_buffer[result.size() - 2] = static_cast<char_t>('>');
+		result.m_buffer[result.size() - 1] = static_cast<char_t>('\0');
 		return result;
 	}
 	else return str;
@@ -203,16 +203,16 @@ inline consteval auto wrapped_name()
 template <auto str>
 inline consteval auto optional_name()
 {
-	using char_t = typename decltype(str)::chart;
-	if constexpr (str.size == 3 && str.m_buffer[0] == static_cast<char_t>('<') && str.m_buffer[1] == static_cast<char_t>('>'))
+	using char_t = typename decltype(str)::char_t;
+	if constexpr (str.size() == 3 && str.m_buffer[0] == static_cast<char_t>('<') && str.m_buffer[1] == static_cast<char_t>('>'))
 		return str;
-	if constexpr (str.size == 1 || str.m_buffer[str.size-2] != static_cast<char_t>('?'))
+	if constexpr (str.size() == 1 || str.m_buffer[str.size()-2] != static_cast<char_t>('?'))
 	{
 		auto str_ = wrapped_name<str>();
-		_ARGLESS_CORE str<char_t, str_.size + 1> result;
-		for (std::size_t i = 0; i < str_.size - 1; ++i) result.m_buffer[i] = str_.m_buffer[i];
-		result.m_buffer[result.size - 2] = static_cast<char_t>('?');
-		result.m_buffer[result.size - 1] = static_cast<char_t>('\0');
+		_ARGLESS_CORE str<char_t, str_.size() + 1> result;
+		for (std::size_t i = 0; i < str_.size() - 1; ++i) result.m_buffer[i] = str_.m_buffer[i];
+		result.m_buffer[result.size() - 2] = static_cast<char_t>('?');
+		result.m_buffer[result.size() - 1] = static_cast<char_t>('\0');
 		return result;
 	}
 	else return str;
@@ -221,8 +221,8 @@ inline consteval auto optional_name()
 template <auto str>
 inline consteval auto array_wrap_name()
 {
-	using char_t = typename decltype(str)::chart;
-	if constexpr (str.size == 1 || str.m_buffer[str.size-2] != static_cast<char_t>(']')) return wrapped_name<str>();
+	using char_t = typename decltype(str)::char_t;
+	if constexpr (str.size() == 1 || str.m_buffer[str.size()-2] != static_cast<char_t>(']')) return wrapped_name<str>();
 	else return str;
 }
 
@@ -241,11 +241,11 @@ inline consteval auto array_wrap_name()
 template <auto str>
 inline consteval auto name_info()
 {
-	using char_t = typename decltype(str)::chart;
+	using char_t = typename decltype(str)::char_t;
 } */
 
 template <auto lstr, auto rstr>
-	requires std::is_same_v<typename decltype(lstr)::chart, typename decltype(rstr)::chart> 
+	requires std::is_same_v<typename decltype(lstr)::char_t, typename decltype(rstr)::char_t> 
 inline consteval auto or_name()
 {
 	// TODO:
@@ -255,12 +255,12 @@ inline consteval auto or_name()
 	// <..|...> + .... -> <..|...|....>
 	// <.., ...> + <....|.....> -> <<.., ...>|....|.....>
 
-	using char_t = typename decltype(lstr)::chart;
+	using char_t = typename decltype(lstr)::char_t;
 	return wrapped_name<lstr + str_from<char_t, "|">() + rstr>();
 }
 
 template <auto lstr, auto rstr>
-	requires std::is_same_v<typename decltype(lstr)::chart, typename decltype(rstr)::chart> 
+	requires std::is_same_v<typename decltype(lstr)::char_t, typename decltype(rstr)::char_t> 
 inline consteval auto and_name()
 {
 	// TODO:
@@ -270,7 +270,7 @@ inline consteval auto and_name()
 	// <.., ...> + .... -> <.., ..., ....>
 	// <..|...> + <...., .....> -> <<..|...>, ...., .....>
 
-	using char_t = typename decltype(lstr)::chart;
+	using char_t = typename decltype(lstr)::char_t;
 	return wrapped_name<lstr + str_from<char_t, ", ">() + rstr>();
 }
 
@@ -286,10 +286,10 @@ inline consteval auto str_number()
 	constexpr char_t digits[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', };
 
 	std::size_t v = n;
-	for (std::size_t i = str_.size - 2; v >= 10; --i, v /= 10)
+	for (std::size_t i = str_.size() - 2; v >= 10; --i, v /= 10)
 		str_.m_buffer[i] = static_cast<char_t>(digits[v%10]); 
 	str_.m_buffer[0] = static_cast<char_t>(digits[v%10]);
-	str_.m_buffer[str_.size - 1] = static_cast<char_t>('\0');
+	str_.m_buffer[str_.size() - 1] = static_cast<char_t>('\0');
 
 	return str_;
 }

@@ -7,9 +7,11 @@
 
 _ARGLESS_CORE_BEGIN
 
-template <typename char_t, std::size_t n>
+template <typename _char_t, std::size_t n>
 struct str
 {
+	using char_t = _char_t;
+
 	inline constexpr str() {}
 
 	inline constexpr str(const char_t(&buffer)[n])
@@ -18,7 +20,9 @@ struct str
 	}
 
 	inline constexpr operator const char_t*() const { return data(); }
+
 	inline constexpr const char_t* data() const { return m_buffer; }
+	inline constexpr std::size_t size() const { return n; }
 
 	template <std::size_t other_n>
 	inline constexpr str<char_t, n + other_n - 1> operator+(const str<char_t, other_n>& other) const
@@ -30,8 +34,6 @@ struct str
 	}
 
 	char_t m_buffer[n] = { 0 };
-	static constexpr inline std::size_t size = n;
-	using chart = char_t;
 };
 
 
@@ -169,7 +171,7 @@ inline constexpr std::optional<t> stot(const char_t* str)
 template <typename to_char_t, auto from_str>
 inline consteval auto str_cast()
 {
-	if constexpr (std::is_same_v<to_char_t, typename decltype(from_str)::chart>)
+	if constexpr (std::is_same_v<to_char_t, typename decltype(from_str)::char_t>)
 		return from_str;
 	return []<auto result>(){
 		str<to_char_t, result.second + 1> to_str;
@@ -180,7 +182,7 @@ inline consteval auto str_cast()
 		to_str.m_buffer[i] = static_cast<to_char_t>('\0');
 		return to_str;
 	}.template operator()<[](){
-		str<to_char_t, (from_str.size - 1) * char_ratio<to_char_t, typename decltype(from_str)::chart> + 1> to_str;
+		str<to_char_t, (from_str.size() - 1) * char_ratio<to_char_t, typename decltype(from_str)::char_t> + 1> to_str;
 		std::size_t c = 0;
 		for (auto it = from_str.data(); *it;)
 		{
