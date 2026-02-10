@@ -141,9 +141,9 @@ int main(int argc, const char** argv)
 
 	std::cout << "--default-value: " << result.get<"--default-value">() << std::endl;
 
-	if (result.get())
-		std::cout << "Paths:" << std::endl;
-	for (auto& path : result.get())
+	if (result.get<>())
+		std::cout << "no-arg paths:" << std::endl;
+	for (auto& path : result.get()) // get() is same as get<>()
 		std::cout << path << std::endl;
 
 	return EXIT_SUCCESS;

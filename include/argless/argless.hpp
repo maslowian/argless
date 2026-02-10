@@ -328,6 +328,48 @@ struct result_get<default_value<t, v>>
 	}
 };
 
+template <_ARGLESS_CORE str... names>
+struct result_find;
+
+template <_ARGLESS_CORE str name, _ARGLESS_CORE str... names>
+struct result_find<name, names...>
+{
+	static inline auto&& call(auto&& self)
+	{
+		using This = std::remove_cvref_t<decltype(self)>;
+		using Values = decltype([](){
+				if constexpr (requires { typename This::app; })
+					return typename This::app::args{};
+				else
+					return typename This::__todo_for_page{};
+			}());
+		static constexpr auto arg_index = [](){
+			return Values::template find_l<[]<typename t>() {
+				return _ARGLESS_CORE seq(t::name.data(), name.data()) ||
+					tetter_sequence<tetter_from<decltype(t::aliases)>::count>::template value_l<[]<std::size_t i>() {
+						return _ARGLESS_CORE seq(std::get<i>(t::aliases).data(), name.data());
+					}>::any; 
+			}>::index;
+		}();
+		static_assert(arg_index != Values::count, "missing arg name");
+
+		if constexpr (sizeof...(names))
+			return _ARGLESS_CORE result_get<typename Values::template get<arg_index>::type>::call(std::get<arg_index>(std::forward<decltype(self)>(self).m_values)).template get<names...>();
+		else
+			return _ARGLESS_CORE result_get<typename Values::template get<arg_index>::type>::call(std::get<arg_index>(std::forward<decltype(self)>(self).m_values).m_value);
+	}
+};
+
+template <>
+struct result_find<>
+{
+	static inline auto&& call(auto&& self)
+	{
+		using This = std::remove_cvref_t<decltype(self)>;
+		return _ARGLESS_CORE result_get<typename This::app::noname_arg_type>::call(self.m_noname_value);
+	}
+};
+
 template <typename t>
 struct is_required : public std::false_type {};
 
@@ -419,8 +461,8 @@ public:
 	static constexpr auto aliases = std::make_tuple(aliases_...);
 
 private:
-	template <_ARGLESS_CORE app_t, typename>
-	friend struct result;
+	template <_ARGLESS_CORE str...>
+	friend struct _ARGLESS_CORE result_find;
 
 	template <_ARGLESS_CORE str, _ARGLESS_CORE str, _ARGLESS_CORE parsable, _ARGLESS_CORE arg_t... args_>
 		requires _ARGLESS_CORE no_name_or_alias_collision<args_...>
@@ -477,17 +519,6 @@ struct result
 public:
 	using app = app_;
 
-private:
-	template <_ARGLESS_CORE str name>
-	static constexpr inline auto arg_index = [](){
-		return app::args::template find_l<[]<typename t, std::size_t>() {
-			return _ARGLESS_CORE seq(t::name.data(), name.data()) ||
-				tetter_sequence<tetter_from<decltype(t::aliases)>::count>::template value_l<[]<typename, std::size_t i>() {
-					return _ARGLESS_CORE seq(std::get<i>(t::aliases).data(), name.data());
-				}>::any; 
-		}>::index;
-	}();
-
 public:
 	inline result() = default;
 	inline result(const result&) = default;
@@ -500,23 +531,17 @@ public:
 	inline const char_t* const& path() const { return m_path; };
 
 public:
-	inline auto& get() & { return _ARGLESS_CORE result_get<typename app::noname_arg_type>::call(m_noname_value); }
-	inline auto&& get() && { return _ARGLESS_CORE result_get<typename app::noname_arg_type>::call(m_noname_value); }
-	inline const auto& get() const & { return _ARGLESS_CORE result_get<typename app::noname_arg_type>::call(m_noname_value); }
-	inline const auto&& get() const && { return _ARGLESS_CORE result_get<typename app::noname_arg_type>::call(m_noname_value); }
+	template <_ARGLESS_CORE str... names>
+	inline auto& get() & { return _ARGLESS_CORE result_find<names...>::call(*this); }
 
-public:
-	template <_ARGLESS_CORE str name> requires (arg_index<name> != app::args::count)
-	inline auto& get() & { return _ARGLESS_CORE result_get<typename app::args::template get<arg_index<name>>::type>::call(std::get<arg_index<name>>(m_values).m_value); }
+	template <_ARGLESS_CORE str... names>
+	inline auto&& get() && { return _ARGLESS_CORE result_find<names...>::call(*this); }
 
-	template <_ARGLESS_CORE str name> requires (arg_index<name> != app::args::count)
-	inline auto&& get() && { return _ARGLESS_CORE result_get<typename app::args::template get<arg_index<name>>::type>::call(std::get<arg_index<name>>(m_values).m_value); }
+	template <_ARGLESS_CORE str... names>
+	inline const auto& get() const & { return _ARGLESS_CORE result_find<names...>::call(*this); }
 
-	template <_ARGLESS_CORE str name> requires (arg_index<name> != app::args::count)
-	inline const auto& get() const & { return _ARGLESS_CORE result_get<typename app::args::template get<arg_index<name>>>::type::call(std::get<arg_index<name>>(m_values).m_value); }
-
-	template <_ARGLESS_CORE str name> requires (arg_index<name> != app::args::count)
-	inline const auto&& get() const && { return _ARGLESS_CORE result_get<typename app::args::template get<arg_index<name>>::type>::call(std::get<arg_index<name>>(m_values).m_value); }
+	template <_ARGLESS_CORE str... names>
+	inline const auto&& get() const && { return _ARGLESS_CORE result_find<names...>::call(*this); }
 
 public:
 	inline const result_error<char_t>& error() const { return m_error; }
@@ -525,6 +550,9 @@ private:
 	template <_ARGLESS_CORE str, _ARGLESS_CORE str, _ARGLESS_CORE parsable, _ARGLESS_CORE arg_t... args_>
 		requires _ARGLESS_CORE no_name_or_alias_collision<args_...>
 	friend struct _ARGLESS app;
+
+	template <_ARGLESS_CORE str...>
+	friend struct _ARGLESS_CORE result_find;
 
 	const char_t* m_path = nullptr;
 	result_error<char_t> m_error;
