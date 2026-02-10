@@ -1,5 +1,7 @@
 no readme yet, checkout Example/src/main.cpp for usage
 
+![Build workflow badge](https://github.com/Maslowian/argless/actions/workflows/build.yml/badge.svg)
+
 supported types:
 - bool
 - int, unsigned int, short, unsigned short, signed char, unsigned char, long, unsigned long, long long, unsigned long long
