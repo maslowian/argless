@@ -3,8 +3,11 @@ cmake_minimum_required(VERSION 3.5...4.0)
 project(argless VERSION 2.0.0 LANGUAGES CXX)
 
 option(ARGLESS_SINGLE_HEADER "Use single header." ON)
-option(ARGLESS_ENABLE_MODULE "Build C++ modules support" OFF)
+option(ARGLESS_ENABLE_MODULE "Build C++ modules support." OFF)
 option(ARGLESS_INSTALL "Install CMake targets during install step." ${PROJECT_IS_TOP_LEVEL})
+
+option(ARGLESS_EXAMPLE "Build Example." OFF)
+option(ARGLESS_TEST "Build unit tests." OFF)
 
 include(GNUInstallDirs)
 
@@ -59,6 +62,14 @@ if (ARGLESS_ENABLE_MODULE)
     )
     target_compile_features(${PROJECT_NAME}-module PUBLIC cxx_std_20 cxx_std_23)
     target_link_libraries(${PROJECT_NAME}-module PRIVATE ${PROJECT_NAME})
+endif()
+
+if (ARGLESS_EXAMPLE)
+    add_subdirectory(example)
+endif()
+
+if (ARGLESS_TEST)
+    message(WARNING "ARGLESS_TEST is not yet implemented")
 endif()
 
 if (ARGLESS_INSTALL)

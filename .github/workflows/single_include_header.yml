@@ -18,16 +18,16 @@ jobs:
           persist-credentials: true
 
       - name: Setup
-        run: mkdir build
+        run: mkdir out 
       - name: CMake
-        run: cd build; cmake .. -DARGLESS_SINGLE_HEADER=OFF -DARGLESS_INSTALL=OFF
+        run: cd out; cmake .. -DARGLESS_SINGLE_HEADER=OFF -DARGLESS_INSTALL=OFF
       - name: Generate header
         run: | 
           echo "/* argless - https://github.com/Maslowian/argless */" > ./single_include/argless.hpp
           echo "" >> ./single_include/argless.hpp
           echo "/*" >> ./single_include/argless.hpp && cat ./LICENSE.txt >> ./single_include/argless.hpp && echo "*/" >> ./single_include/argless.hpp
           echo "" >> ./single_include/argless.hpp
-          python ./tools/generate_header.py ./include/argless.hpp -I=./include "-I=./build/$(dirname $(cd build && find -type f -name tetter.hpp | head -n 1))" >> ./single_include/argless.hpp 
+          python ./tools/generate_header.py ./include/argless.hpp -I=./include "-I=./out/$(dirname $(cd out && find -type f -name tetter.hpp | head -n 1))" >> ./single_include/argless.hpp 
 
       - uses: stefanzweifel/git-auto-commit-action@v7
         with:

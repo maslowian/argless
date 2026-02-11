@@ -167,7 +167,7 @@ public:
 	inline constexpr bool is()
 	{
 		return m_index == name_index<name> + 1;
-	};
+	}
 
 private:
 	std::size_t m_index = 0;

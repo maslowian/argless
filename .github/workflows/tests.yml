@@ -1,0 +1,25 @@
+name: Tests
+
+on:
+  workflow_run:
+    workflows: ["Build"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup
+        run: mkdir out
+      - name: CMake
+        run: cd out; cmake .. -DARGLESS_SINGLE_HEADER=OFF -DARGLESS_TEST=ON
+      - name: Build
+        run: cd out; make -j$(nproc)
+      - name: Run
+        run: cd out; false

@@ -34,6 +34,7 @@ using app = argless::app<"ExampleArglessApp", argless::nodesc, argless::accumula
 		argless::arg<std::variant<bool, float>, "--variant">,
 		argless::arg<std::tuple<int, float>, "--tuple">,
 		argless::arg<std::optional<const char*>, "--optional">,
+
 		argless::arg<ExampleEnum, "--enum">,
 
 		argless::arg<argless::option<"y", "n">, "--option">,

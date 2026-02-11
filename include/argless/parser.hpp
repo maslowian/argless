@@ -2,7 +2,7 @@
 #include "core.hpp"
 #include "str.hpp"
 
-#include "tetter.hpp"
+#include <tetter.hpp>
 
 #include <variant>
 #include <vector>
@@ -83,7 +83,7 @@ struct parse_result
 	}
 
 	template <typename u>
-	constexpr inline parse_result(const _expected_t<u>& value) : parse_result(_ARGLESS_CORE expected<char_t>(_expected_t<u>::template name<char_t>)) {}
+	constexpr inline parse_result(const _expected_t<u>&) : parse_result(_ARGLESS_CORE expected<char_t>(_expected_t<u>::template name<char_t>)) {}
 
 public:
 	constexpr inline bool is_valid() const noexcept { return std::holds_alternative<t>(m_value); } 

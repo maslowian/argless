@@ -7,6 +7,8 @@ _ARGLESS_BEGIN
 template <_ARGLESS_CORE app_t app, typename char_t>
 inline constexpr std::basic_string<char_t> help_error(const result_error<char_t>& error, int argc, const char_t** argv)
 {
+	(void) argc;
+	(void) argv;
 	std::basic_stringstream<char_t> out;
 
 	out << "error type: ";
@@ -39,6 +41,7 @@ inline constexpr std::basic_string<char_t> help_error(const result_error<char_t>
 template <_ARGLESS_CORE app_t app, typename char_t = char>
 inline std::basic_string<char_t> help_arg(const char_t* arg)
 {
+	(void) arg;
 	std::basic_stringstream<char_t> out;
 	out << "TODO";
 	return out.str();

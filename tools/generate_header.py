@@ -1,29 +1,43 @@
 #!/usr/bin/env python3
 import argparse
 import os
+import sys
 
 dirs = []
 included_files = set()
 output = "#pragma once\n"
 
 def find_file(file, from_dir):
-    global dirs
+    def rel_dirs():
+        if from_dir is None:
+            return dirs
+        else:
+            return [from_dir] + dirs
 
     if os.path.isabs(file):
         if os.path.isfile(file):
-            return file 
+            return os.path.normpath(file) 
     else:
-        for d in ([from_dir] + dirs):
+        for d in rel_dirs():
             path = os.path.join(d, file)
             if os.path.isfile(path):
-                return path
+                return os.path.normpath(path)
+
+    if from_dir is None:
+        print(f"Warning: File <{file}> not found.", file=sys.stderr)
+        return None
+
     raise FileNotFoundError(f"File {file} not found")
 
 def include_file(file, from_dir):
     global output
     global included_files
 
-    abs_file = os.path.normpath(find_file(file, from_dir))
+    abs_file = find_file(file, from_dir)
+
+    if abs_file is None:
+        output += f"#include <{file}>\n"
+        return
 
     if abs_file in included_files:
         return
@@ -37,9 +51,18 @@ def include_file(file, from_dir):
             if stripped.startswith('#include'):
                 start = stripped.find('"')
                 end = stripped.rfind('"')
+                relative = True
+                if start == -1 or end == -1:
+                    start = stripped.find('<')
+                    end = stripped.rfind('>')
+                    relative = False
+
                 if start != -1 and end != -1 and end > start:
                     inc_name = stripped[start + 1 : end]
-                    include_file(inc_name, os.path.dirname(abs_file))
+                    if relative:
+                        include_file(inc_name, os.path.dirname(abs_file))
+                    else:
+                        include_file(inc_name, None)
                 else:
                     output += line
             else:
