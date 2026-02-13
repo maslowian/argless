@@ -3,35 +3,36 @@ module;
 #include <argless.hpp>
 export module argless;
 
-export namespace argless
-{
-	using ::argless::app;
-	using ::argless::arg;
+export _ARGLESS_BEGIN
 
-	using ::argless::nodesc; 
+using _ARGLESS app;
+using _ARGLESS arg;
 
-	using ::argless::result;
-	using ::argless::result_error;
-	using ::argless::result_error_type;
+using _ARGLESS nodesc; 
 
-	using ::argless::accumulate;
-	using ::argless::required;
-	using ::argless::default_value;
+using _ARGLESS result;
+using _ARGLESS result_error;
+using _ARGLESS result_error_type;
 
-	using ::argless::rename;
-	using ::argless::force;
-	using ::argless::fallback;
-	using ::argless::transform;
-	using ::argless::validate;
-	using ::argless::option;
+using _ARGLESS accumulate;
+using _ARGLESS required;
+using _ARGLESS default_value;
 
-	using ::argless::enum_value;
-	using ::argless::enum_values;
-	using ::argless::enum_refl;
+using _ARGLESS rename;
+using _ARGLESS force;
+using _ARGLESS fallback;
+using _ARGLESS transform;
+using _ARGLESS validate;
+using _ARGLESS option;
 
-	using ::argless::get_name;
+using _ARGLESS enum_value;
+using _ARGLESS enum_values;
+using _ARGLESS enum_refl;
 
-	using ::argless::help_error;
-	using ::argless::help_arg;
-	using ::argless::help_app;
-}
+using _ARGLESS get_name;
+
+using _ARGLESS help_error;
+using _ARGLESS help_arg;
+using _ARGLESS help_app;
+
+_ARGLESS_END

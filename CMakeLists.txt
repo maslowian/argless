@@ -58,7 +58,7 @@ if (ARGLESS_ENABLE_MODULE)
     add_library(${PROJECT_NAME}::${PROJECT_NAME}-module ALIAS ${PROJECT_NAME}-module)
     target_sources(${PROJECT_NAME}-module PUBLIC FILE_SET CXX_MODULES
         BASE_DIRS ${ARGLESS_SOURCE_DIR}
-        FILES "${ARGLESS_SOURCE_DIR}/argless.cppm"
+        FILES "${ARGLESS_SOURCE_DIR}/argless.cppm" "${ARGLESS_SOURCE_DIR}/argless.core.cppm"
     )
     target_compile_features(${PROJECT_NAME}-module PUBLIC cxx_std_20 cxx_std_23)
     target_link_libraries(${PROJECT_NAME}-module PRIVATE ${PROJECT_NAME})
