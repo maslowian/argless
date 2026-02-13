@@ -1,4 +1,4 @@
-/* argless - https://github.com/Maslowian/argless */
+/* argless - https://github.com/maslowian/argless */
 
 /*
 MIT License
@@ -255,7 +255,7 @@ constexpr inline auto static_str = _static_str_impl<str_>::value;
 
 _ARGLESS_CORE_END
 
-/* tetter - https://github.com/Maslowian/tetter */
+/* tetter - https://github.com/maslowian/tetter */
 
 /* 
 MIT License
@@ -288,10 +288,13 @@ SOFTWARE.
 #define tetter_version_minor 0
 #define tetter_version_patch 0
 
-#define _tetter_check(x, v) (defined(__ ## x) ? (__ ## x >= v) : (__cplusplus >= v)) 
-
 #ifndef _tetter_decltype
-#if _tetter_check(cpp_decltype_auto, 201304L)
+#ifdef __cpp_decltype_auto
+#define _tetter__cpp_decltype_auto __cpp_decltype_auto
+#else
+#define _tetter__cpp_decltype_auto __cplusplus
+#endif
+#if _tetter__cpp_decltype_auto >= 201304L
 #define _tetter_decltype(...) decltype(auto) 
 #else
 #define _tetter_decltype(...) decltype(__VA_ARGS__)
@@ -299,7 +302,12 @@ SOFTWARE.
 #endif
 
 #ifndef _tetter_variable_templates
-#if _tetter_check(cpp_variable_templates, 201304L)
+#ifdef __cpp_variable_templates
+#define _tetter__cpp_variable_templates __cpp_variable_templates
+#else
+#define _tetter__cpp_variable_templates __cplusplus
+#endif
+#if _tetter__cpp_variable_templates >= 201304L
 #define _tetter_variable_templates true
 #else
 #define _tetter_variable_templates false
@@ -307,7 +315,12 @@ SOFTWARE.
 #endif
 
 #ifndef _tetter_generic_lambdas
-#if _tetter_check(cpp_generic_lambdas, 201707L)
+#ifdef __cpp_generic_lambdas
+#define _tetter__cpp_generic_lambdas __cpp_generic_lambdas
+#else
+#define _tetter__cpp_generic_lambdas __cplusplus
+#endif
+#if _tetter__cpp_generic_lambdas >= 201707L
 #define _tetter_generic_lambdas true
 #else
 #define _tetter_generic_lambdas false
@@ -315,7 +328,12 @@ SOFTWARE.
 #endif
 
 #ifndef _tetter_concepts
-#if _tetter_check(cpp_concepts, 201907L)
+#ifdef __cpp_concepts
+#define _tetter__cpp_concepts __cpp_concepts
+#else
+#define _tetter__cpp_concepts __cplusplus
+#endif
+#if _tetter__cpp_concepts >= 201907L
 #define _tetter_concepts true
 #else
 #define _tetter_concepts false
@@ -323,7 +341,7 @@ SOFTWARE.
 #endif
 
 #ifndef _tetter_unevaluated_lambda
-#if _tetter_check(cplusplus, 202002L)
+#if __cplusplus >= 202002L
 #define _tetter_unevaluated_lambda true
 #else
 #define _tetter_unevaluated_lambda false 
@@ -331,7 +349,12 @@ SOFTWARE.
 #endif
 
 #ifndef _tetter_static_call_operator
-#if _tetter_check(cpp_static_call_operator, 202207L)
+#ifdef __cpp_static_call_operator
+#define _tetter__cpp_static_call_operator __cpp_static_call_operator
+#else
+#define _tetter__cpp_static_call_operator __cplusplus
+#endif
+#if _tetter__cpp_static_call_operator >= 202207L
 #define _tetter_static_call_operator true
 #else
 #define _tetter_static_call_operator false
@@ -884,7 +907,9 @@ template <_size_t i, typename w, typename ats, typename... args>
 struct _call_impl<i, w, _tetter<>, ats, args...>
 {
 	_tetter_force_inline static constexpr void call(args&&... _args)
-	{}
+	{
+		((void) _args, ...);
+	}
 };
 
 template <_size_t i, typename w, typename rts, typename it, typename ats, typename... args>
@@ -960,11 +985,13 @@ struct _call_bool_impl<i, w, _tetter<>, ats, args...>
 {
 	_tetter_force_inline static constexpr bool call_all(args&&... _args)
 	{
+		((void) _args, ...);
 		return true;
 	}
 
 	_tetter_force_inline static constexpr bool call_any(args&&... _args)
 	{
+		((void) _args, ...);
 		return false;
 	}
 };
@@ -1029,16 +1056,19 @@ struct _call_int_impl<i, w, _tetter<>, ats, args...>
 {
 	_tetter_force_inline static constexpr int call_sum(args&&... _args)
 	{
+		((void) _args, ...);
 		return 0; 
 	}
 
 	_tetter_force_inline static constexpr int call_min(args&&... _args)
 	{
+		((void) _args, ...);
 		return 0; 
 	}
 
 	_tetter_force_inline static constexpr int call_max(args&&... _args)
 	{
+		((void) _args, ...);
 		return 0; 
 	}
 };
@@ -2099,7 +2129,7 @@ struct parse_result
 	}
 
 	template <typename u>
-	constexpr inline parse_result(const _expected_t<u>& value) : parse_result(_ARGLESS_CORE expected<char_t>(_expected_t<u>::template name<char_t>)) {}
+	constexpr inline parse_result(const _expected_t<u>&) : parse_result(_ARGLESS_CORE expected<char_t>(_expected_t<u>::template name<char_t>)) {}
 
 public:
 	constexpr inline bool is_valid() const noexcept { return std::holds_alternative<t>(m_value); } 
@@ -2195,7 +2225,7 @@ struct _expected_t
 };
 
 template <typename t, typename char_t>
-inline consteval auto str_name()
+inline consteval auto type_name()
 {
 	return _ARGLESS_CORE parser<t>::template name<char_t>;
 }
@@ -2291,7 +2321,7 @@ inline consteval auto and_name()
 }
 
 template <typename char_t, std::size_t n>
-inline consteval auto str_number() 
+inline consteval auto number_name() 
 {
 	str<char_t, []() { 
 		std::size_t v = n, c = 1;
@@ -2476,7 +2506,7 @@ public:
 	inline constexpr bool is()
 	{
 		return m_index == name_index<name> + 1;
-	};
+	}
 
 private:
 	std::size_t m_index = 0;
@@ -2637,6 +2667,48 @@ struct result_get<default_value<t, v>>
 	}
 };
 
+template <_ARGLESS_CORE str... names>
+struct result_find;
+
+template <_ARGLESS_CORE str name, _ARGLESS_CORE str... names>
+struct result_find<name, names...>
+{
+	static inline auto&& call(auto&& self)
+	{
+		using This = std::remove_cvref_t<decltype(self)>;
+		using Values = decltype([](){
+				if constexpr (requires { typename This::app; })
+					return typename This::app::args{};
+				else
+					return typename This::__todo_for_page{};
+			}());
+		static constexpr auto arg_index = [](){
+			return Values::template find_l<[]<typename t>() {
+				return _ARGLESS_CORE seq(t::name.data(), name.data()) ||
+					tetter_sequence<tetter_from<decltype(t::aliases)>::count>::template value_l<[]<std::size_t i>() {
+						return _ARGLESS_CORE seq(std::get<i>(t::aliases).data(), name.data());
+					}>::any; 
+			}>::index;
+		}();
+		static_assert(arg_index != Values::count, "missing arg name");
+
+		if constexpr (sizeof...(names))
+			return _ARGLESS_CORE result_get<typename Values::template get<arg_index>::type>::call(std::get<arg_index>(std::forward<decltype(self)>(self).m_values)).template get<names...>();
+		else
+			return _ARGLESS_CORE result_get<typename Values::template get<arg_index>::type>::call(std::get<arg_index>(std::forward<decltype(self)>(self).m_values).m_value);
+	}
+};
+
+template <>
+struct result_find<>
+{
+	static inline auto&& call(auto&& self)
+	{
+		using This = std::remove_cvref_t<decltype(self)>;
+		return _ARGLESS_CORE result_get<typename This::app::noname_arg_type>::call(self.m_noname_value);
+	}
+};
+
 template <typename t>
 struct is_required : public std::false_type {};
 
@@ -2728,8 +2800,8 @@ public:
 	static constexpr auto aliases = std::make_tuple(aliases_...);
 
 private:
-	template <_ARGLESS_CORE app_t, typename>
-	friend struct result;
+	template <_ARGLESS_CORE str...>
+	friend struct _ARGLESS_CORE result_find;
 
 	template <_ARGLESS_CORE str, _ARGLESS_CORE str, _ARGLESS_CORE parsable, _ARGLESS_CORE arg_t... args_>
 		requires _ARGLESS_CORE no_name_or_alias_collision<args_...>
@@ -2786,17 +2858,6 @@ struct result
 public:
 	using app = app_;
 
-private:
-	template <_ARGLESS_CORE str name>
-	static constexpr inline auto arg_index = [](){
-		return app::args::template find_l<[]<typename t, std::size_t>() {
-			return _ARGLESS_CORE seq(t::name.data(), name.data()) ||
-				tetter_sequence<tetter_from<decltype(t::aliases)>::count>::template value_l<[]<typename, std::size_t i>() {
-					return _ARGLESS_CORE seq(std::get<i>(t::aliases).data(), name.data());
-				}>::any; 
-		}>::index;
-	}();
-
 public:
 	inline result() = default;
 	inline result(const result&) = default;
@@ -2809,23 +2870,17 @@ public:
 	inline const char_t* const& path() const { return m_path; };
 
 public:
-	inline auto& get() & { return _ARGLESS_CORE result_get<typename app::noname_arg_type>::call(m_noname_value); }
-	inline auto&& get() && { return _ARGLESS_CORE result_get<typename app::noname_arg_type>::call(m_noname_value); }
-	inline const auto& get() const & { return _ARGLESS_CORE result_get<typename app::noname_arg_type>::call(m_noname_value); }
-	inline const auto&& get() const && { return _ARGLESS_CORE result_get<typename app::noname_arg_type>::call(m_noname_value); }
+	template <_ARGLESS_CORE str... names>
+	inline auto& get() & { return _ARGLESS_CORE result_find<names...>::call(*this); }
 
-public:
-	template <_ARGLESS_CORE str name> requires (arg_index<name> != app::args::count)
-	inline auto& get() & { return _ARGLESS_CORE result_get<typename app::args::template get<arg_index<name>>::type>::call(std::get<arg_index<name>>(m_values).m_value); }
+	template <_ARGLESS_CORE str... names>
+	inline auto&& get() && { return _ARGLESS_CORE result_find<names...>::call(*this); }
 
-	template <_ARGLESS_CORE str name> requires (arg_index<name> != app::args::count)
-	inline auto&& get() && { return _ARGLESS_CORE result_get<typename app::args::template get<arg_index<name>>::type>::call(std::get<arg_index<name>>(m_values).m_value); }
+	template <_ARGLESS_CORE str... names>
+	inline const auto& get() const & { return _ARGLESS_CORE result_find<names...>::call(*this); }
 
-	template <_ARGLESS_CORE str name> requires (arg_index<name> != app::args::count)
-	inline const auto& get() const & { return _ARGLESS_CORE result_get<typename app::args::template get<arg_index<name>>>::type::call(std::get<arg_index<name>>(m_values).m_value); }
-
-	template <_ARGLESS_CORE str name> requires (arg_index<name> != app::args::count)
-	inline const auto&& get() const && { return _ARGLESS_CORE result_get<typename app::args::template get<arg_index<name>>::type>::call(std::get<arg_index<name>>(m_values).m_value); }
+	template <_ARGLESS_CORE str... names>
+	inline const auto&& get() const && { return _ARGLESS_CORE result_find<names...>::call(*this); }
 
 public:
 	inline const result_error<char_t>& error() const { return m_error; }
@@ -2834,6 +2889,9 @@ private:
 	template <_ARGLESS_CORE str, _ARGLESS_CORE str, _ARGLESS_CORE parsable, _ARGLESS_CORE arg_t... args_>
 		requires _ARGLESS_CORE no_name_or_alias_collision<args_...>
 	friend struct _ARGLESS app;
+
+	template <_ARGLESS_CORE str...>
+	friend struct _ARGLESS_CORE result_find;
 
 	const char_t* m_path = nullptr;
 	result_error<char_t> m_error;
@@ -3150,6 +3208,8 @@ _ARGLESS_BEGIN
 template <_ARGLESS_CORE app_t app, typename char_t>
 inline constexpr std::basic_string<char_t> help_error(const result_error<char_t>& error, int argc, const char_t** argv)
 {
+	(void) argc;
+	(void) argv;
 	std::basic_stringstream<char_t> out;
 
 	out << "error type: ";
@@ -3182,6 +3242,7 @@ inline constexpr std::basic_string<char_t> help_error(const result_error<char_t>
 template <_ARGLESS_CORE app_t app, typename char_t = char>
 inline std::basic_string<char_t> help_arg(const char_t* arg)
 {
+	(void) arg;
 	std::basic_stringstream<char_t> out;
 	out << "TODO";
 	return out.str();
@@ -3457,7 +3518,7 @@ struct parser<std::array<arr_t, arr_n>>
 	}
 
 	template <typename char_t>
-	static constexpr inline auto name = array_wrap_name<str_name<arr_t, char_t>()>() + str_from<char_t, "[">() + str_number<char_t, arr_n>() + str_from<char_t, "]">();
+	static constexpr inline auto name = array_wrap_name<type_name<arr_t, char_t>()>() + str_from<char_t, "[">() + number_name<char_t, arr_n>() + str_from<char_t, "]">();
 };
 
 _ARGLESS_CORE_END
@@ -3540,7 +3601,7 @@ struct parser<t<t_t, t_st>>
 	}
 
 	template <typename char_t>
-	static constexpr inline auto name = array_wrap_name<str_name<t_t, char_t>()>() + str_from<char_t, "[]">();
+	static constexpr inline auto name = array_wrap_name<type_name<t_t, char_t>()>() + str_from<char_t, "[]">();
 };
 
 _ARGLESS_CORE_END
@@ -3691,7 +3752,7 @@ struct parser<enum_t>
 		auto str = vs::pop_front::invoke_pipe([]<typename t>(auto str){ return [](){ return or_name<decltype(str){}(), (str_from<char_t, "'">() + str_cast<char_t, t::name>() + str_from<char_t, "'">())>(); }; },
 				[](){ return str_from<char_t, "'">() + str_cast<char_t, vs::front::name>() + str_from<char_t, "'">(); });
 		if constexpr (!is_scoped_enum<enum_t>::value)
-			return or_name<decltype(str){}(), str_name<std::underlying_type_t<enum_t>, char_t>()>(); 
+			return or_name<decltype(str){}(), type_name<std::underlying_type_t<enum_t>, char_t>()>(); 
 		else
 			return str();
 	}();
@@ -3868,7 +3929,7 @@ struct parser<std::optional<opt_t>>
 	}
 
 	template <typename char_t>
-	static constexpr inline auto name = optional_name<str_name<opt_t, char_t>()>();
+	static constexpr inline auto name = optional_name<type_name<opt_t, char_t>()>();
 };
 
 _ARGLESS_CORE_END
@@ -3943,9 +4004,9 @@ struct parser<std::variant<var_ts...>>
 	template <typename char_t>
 	static constexpr inline auto name = []() {
 		auto str = ts::pop_front::invoke_pipe([]<typename t>(auto str){ return [](){
-				return or_name<std::remove_cvref_t<decltype(str)>{}(), str_name<t, char_t>()>(); 
+				return or_name<std::remove_cvref_t<decltype(str)>{}(), type_name<t, char_t>()>(); 
 			}; }, [](){
-				return str_name<typename ts::front, char_t>();
+				return type_name<typename ts::front, char_t>();
 			});
 		if constexpr (tetter<var_ts...>::template find_t<std::monostate>::value) return optional_name<char_t, decltype(str){}()>();
 		else return str();
@@ -3986,7 +4047,7 @@ struct parser<std::tuple<tup_t, tup_st, tup_ts...>>
 			args.m_limit = to;
 			auto rest_result = parser<std::tuple<tup_st, tup_ts...>>::parse(args);
 
-			if (!result.is_valid())
+			if (!rest_result.is_valid())
 				continue;
 
 			if (result.is_default() && rest_result.is_default())
@@ -4001,7 +4062,7 @@ struct parser<std::tuple<tup_t, tup_st, tup_ts...>>
 	}
 
 	template <typename char_t>
-	static constexpr inline auto name = and_name<str_name<tup_t, char_t>(), str_name<std::tuple<tup_st, tup_ts...>, char_t>()>();
+	static constexpr inline auto name = and_name<type_name<tup_t, char_t>(), type_name<std::tuple<tup_st, tup_ts...>, char_t>()>();
 };
 
 template <typename tup_t>
@@ -4024,7 +4085,7 @@ struct parser<std::tuple<tup_t>>
 	}
 
 	template <typename char_t>
-	static constexpr inline auto name = str_name<tup_t, char_t>();
+	static constexpr inline auto name = type_name<tup_t, char_t>();
 };
 
 template <>
