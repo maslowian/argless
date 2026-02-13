@@ -23,7 +23,7 @@ jobs:
         run: cd out; cmake .. -DARGLESS_SINGLE_HEADER=OFF -DARGLESS_INSTALL=OFF
       - name: Generate header
         run: | 
-          echo "/* argless - https://github.com/Maslowian/argless */" > ./single_include/argless.hpp
+          echo "/* argless - https://github.com/maslowian/argless */" > ./single_include/argless.hpp
           echo "" >> ./single_include/argless.hpp
           echo "/*" >> ./single_include/argless.hpp && cat ./LICENSE.txt >> ./single_include/argless.hpp && echo "*/" >> ./single_include/argless.hpp
           echo "" >> ./single_include/argless.hpp
