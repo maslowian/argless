@@ -1,7 +1,7 @@
 no readme yet, checkout [Example](https://github.com/Maslowian/argless/blob/master/example/src/main.cpp) for usage
 
-[![image](https://github.com/Maslowian/argless/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/Maslowian/argless/actions/workflows/build.yml)
-[![image](https://github.com/Maslowian/argless/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/Maslowian/argless/actions/workflows/tests.yml)
+[![Build workflow badge](https://github.com/Maslowian/argless/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/Maslowian/argless/actions/workflows/build.yml)
+[![Tests workflow badge](https://github.com/Maslowian/argless/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/Maslowian/argless/actions/workflows/tests.yml)
 
 supported types:
 - bool
