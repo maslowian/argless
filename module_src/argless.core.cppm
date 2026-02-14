@@ -3,6 +3,8 @@ module;
 #include <argless.hpp>
 export module argless.core;
 
+import argless;
+
 export _ARGLESS_CORE_BEGIN
 
 using _ARGLESS_CORE parser;
