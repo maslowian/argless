@@ -62,9 +62,6 @@ struct _derive_impl<false, t>
 	inline constexpr operator t&() { return m_value; }
 	inline constexpr operator const t&() const { return m_value; }
 
-	inline constexpr auto& pure_cast() { return m_value; }
-	inline constexpr const auto& pure_cast() const { return m_value; }
-
 private:
 	t m_value;
 };
