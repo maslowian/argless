@@ -11,7 +11,7 @@ supported types:
 - const char_t*, std::basic_string_view, std::basic_string
 - enum, enum class
 - std::array
-- std::vector, std::list, std::deque, std::stack, std::queue,
+- std::vector, std::list, std::forward_list, std::deque, std::stack, std::queue,
 - std::optional
 - std::variant
 - std::tuple
